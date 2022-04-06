@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HexClock</title>
+    
+    <link rel="icon" id="favicon" href="data:image/svg+xml,%3Csvg id='Layer_1' data-name='Layer 1' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'%3E%3Ccircle cx='200' cy='200' r='150' style='stroke:white;stroke-width:25px'/%3E%3Ctext x='200' y='200' style='font:bold 100px sans-serif;fill:White;text-anchor:middle;dominant-baseline:middle'%3EHex%3C/text%3E%3C/svg%3E">
+    <link href="https://fonts.googleapis.com/css2?family=Inconsolata&display=swap" rel="stylesheet">
+    <style>
+        body, html{
+            padding: 0;
+            margin: 0;
+            height: 100%;
+            width: 100%;
+        }
+        body{
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Inconsolata', monospace;
+        }
+        #settings{
+            position: fixed;
+            top: 0;
+            left: 0;
+            padding: 0.5em;
+            display: flex;
+        }
+        #settings:hover{
+            background-color: #00000044;
+        }
+        #settings_content{
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 0 20px;
+        }
+        .settingbox{
+            display: flex;
+            align-items: center;
+        }
+        a{display: flex;}
+    </style>
+</head>
+<body>
+    <div id="settings">
+        <a href="#" onclick="togglesettings();">
+            <svg xmlns="http://www.w3.org/2000/svg" height="3rem" viewBox="0 0 24 24" width="3rem" id="menuicon" style="fill: #ffffff;">
+                <path d="M0 0h24v24H0V0z" fill="none"/>
+                <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/>
+            </svg>
+        </a>
+        <div id="settings_content" style="display: none;">
+            <div class="settingbox">
+                <label for="modeEl">Calculation mode:&nbsp;</label>
+                <select name="calcMode" id="calcMode">
+                    <option value="0">Basic</option>
+                    <option value="1" selected>Basic hex</option>
+                    <option value="2">Basic even-spaced</option>
+                    <option value="3">Complete seconds</option>
+                    <option value="4">Complete milliseconds</option>
+                </select>
+            </div>
+            <div class="settingbox">
+                <label for="normaltime">Time display mode&nbsp;</label>
+                <select name="timeMode" id="timeMode">
+                    <option value="0" selected>Hex</option>
+                    <option value="1">Normal time</option>
+                    <option value="2">Unix timestamp</option>
+                </select>
+            </div>
+            <div id="millisecondsDiv" style="display:flex">
+                <label for="milliseconds">Milliseconds</label>
+                <input type="checkbox" name="milliseconds" id="milliseconds" checked>
+            </div>
+        </div>
+    </div>
+    <span id="time">Clock</span>
+    <script>
+        let start = true;
+        let updateIcon = true;
+        let date;
+        let color;
+        let text;
+        let customDate = null;
+        
+        let timeEl = document.getElementById("time")
+
+        let menuicon = document.getElementById("menuicon");
+        let settings_content = document.getElementById("settings_content");
+        let calcModeSelect = document.getElementById("calcMode");
+        let timeModeSelect = document.getElementById("timeMode");
+        let millisecondsDiv = document.getElementById("millisecondsDiv");
+        let msBox = document.getElementById("milliseconds");
+        let favicon = document.getElementById("favicon");
+
+        function updatetime() {
+            if (customDate == null){date = new Date();}else{date = new Date(customDate)}
+            let time = [date.getHours(), date.getMinutes(), date.getSeconds(), date.getMilliseconds()];
+            
+            switch (calcModeSelect.value) {
+                case "0": color = ('00'+time[0]).slice(-2) + ('00'+time[1]).slice(-2) + ('00'+time[2]).slice(-2); break;
+                case "1": color = (('00'+time[0].toString(16)).slice(-2) + ('00'+time[1].toString(16)).slice(-2) + ('00'+time[2].toString(16)).slice(-2)).toUpperCase(); break;
+                case "2": color = (('00'+(10*time[0]).toString(16)).slice(-2) + ('00'+(4*time[1]).toString(16)).slice(-2) + ('00'+(4*time[2]).toString(16)).slice(-2)).toUpperCase(); break;
+                case "3": color = ('000000' + Math.round((16777216/86400)*(time[0]*3600 + time[1]*60 + time[2])).toString(16).toUpperCase()).slice(-6); break;
+                case "4": color = ('000000' + Math.round((16777216/86400000)*(time[0]*3600000 + time[1]*60000 + time[2]*1000 + time[3])).toString(16).toUpperCase()).slice(-6); break;
+            }
+            // console.log(color);
+            
+            let lightnessVar = (CalcLightness(color) < 128? "#ffffff":"#000000");
+            document.body.style.color = lightnessVar;
+            menuicon.style.fill = lightnessVar;
+            document.body.style.backgroundColor = "#" + color;
+
+            let oldtext = text;
+            switch (timeModeSelect.value) {
+                case "0": text = "#" + color; break;
+                case "1": text=('00'+time[0]).slice(-2)+":"+('00'+time[1]).slice(-2)+":"+('00'+time[2]).slice(-2)+(msBox.checked? ("."+('000'+time[3]).slice(-3)):""); break;
+                case "2": if (msBox.checked){text = date.valueOf();} else{text = Math.floor(date / 1000)} break;
+            }
+            if(oldtext != text){
+                timeEl.innerHTML = text;
+                timeEl.style.fontSize = 80/text.length + "vw";
+            }
+            
+            if (start) {window.requestAnimationFrame(updatetime);}
+        }
+        function togglesettings(){
+            let displaysettings = (settings_content.style.display == "none"? true:false);
+            settings_content.style.display = (displaysettings? "":"none");
+            document.querySelector("#settings").style.backgroundColor = (displaysettings? "#00000044":"");
+            console.log(displaysettings)
+        }
+        function CalcLightness(hex) {
+            var rgb = parseInt(hex, 16);    // convert rrggbb to decimal
+            var r = (rgb >> 16) & 0xff;     // extract red
+            var g = (rgb >>  8) & 0xff;     // extract green
+            var b = (rgb >>  0) & 0xff;     // extract blue
+            return 0.2126 * r + 0.7152 * g + 0.0722 * b;    // per ITU-R BT.709
+        }
+        updatetime();
+    </script>
+</body>
+</html>

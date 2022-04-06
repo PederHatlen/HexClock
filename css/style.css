@@ -1,0 +1,33 @@
+body, html{
+    padding: 0;
+    margin: 0;
+    height: 100%;
+    width: 100%;
+}
+body{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Inconsolata', monospace;
+}
+#settings{
+    position: fixed;
+    top: 0;
+    left: 0;
+    padding: 0.5em;
+    display: flex;
+}
+#settings:hover{
+    background-color: #00000044;
+}
+#settings_content{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 0 20px;
+}
+.settingbox{
+    display: flex;
+    align-items: center;
+}
+a{display: flex;}
