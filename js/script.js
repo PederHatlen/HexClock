@@ -5,10 +5,12 @@ let color;
 let text;
 let customDate = null;
 
-let timeEl = document.getElementById("time")
+let timeEl = document.getElementById("time");
 
+let settingsEl = document.getElementById("settings");
+let toggleSettingsEl = document.getElementById("toggleSettings");
 let menuicon = document.getElementById("menuicon");
-let settings_content = document.getElementById("settings_content");
+let scEl = document.getElementById("settingsContent");
 let calcModeSelect = document.getElementById("calcMode");
 let timeModeSelect = document.getElementById("timeMode");
 let millisecondsDiv = document.getElementById("millisecondsDiv");
@@ -47,10 +49,12 @@ function updatetime() {
     if (start) {window.requestAnimationFrame(updatetime);}
 }
 function togglesettings(){
-    let displaysettings = (settings_content.style.display == "none"? true:false);
-    settings_content.style.display = (displaysettings? "":"none");
-    document.querySelector("#settings").style.backgroundColor = (displaysettings? "#00000044":"");
-    console.log(displaysettings)
+    if (scEl.style.display == "none"){
+        scEl.style.display = "";
+        settingsEl.style.backgroundColor = "#00000044";}
+    else{
+        scEl.style.display = "none";
+        settingsEl.style.backgroundColor = "";}
 }
 function CalcLightness(hex) {
     var rgb = parseInt(hex, 16);    // convert rrggbb to decimal
@@ -59,4 +63,6 @@ function CalcLightness(hex) {
     var b = (rgb >>  0) & 0xff;     // extract blue
     return 0.2126 * r + 0.7152 * g + 0.0722 * b;    // per ITU-R BT.709
 }
+
+window.addEventListener("click", (e)=>{if((scEl.style.display == "" && !settingsEl.contains(e.target)) || toggleSettingsEl.contains(e.target)) togglesettings();});
 updatetime();

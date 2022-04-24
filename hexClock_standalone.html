@@ -140,6 +140,8 @@
             var b = (rgb >>  0) & 0xff;     // extract blue
             return 0.2126 * r + 0.7152 * g + 0.0722 * b;    // per ITU-R BT.709
         }
+
+        window.addEventListener("click", (e)=>{if((scEl.style.display == "" && !settingsEl.contains(e.target)) || toggleSettingsEl.contains(e.target)) togglesettings();});
         updatetime();
     </script>
 </body>

@@ -20,7 +20,7 @@ body{
 #settings:hover{
     background-color: #00000044;
 }
-#settings_content{
+#settingsContent{
     display: flex;
     flex-direction: column;
     justify-content: center;
